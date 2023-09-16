@@ -20,6 +20,7 @@ export const App = () => {
     setQuery(search);
     setImages([]);
     setPage(1);
+    setEnd(true);
   };
 
   const toggleModal = modalImage => {
@@ -33,37 +34,32 @@ export const App = () => {
 
   useEffect(() => {
     async function updateDate() {
-      setQuery();
-      setPage();
-
+      if (query === '') {
+        return;
+      }
       try {
         setLoading(true);
-
         const imageData = await serviceReq(query, page);
         const imagesOnly = imageData.hits.map(
           ({ webformatURL, largeImageURL, id }) => {
             return { webformatURL, largeImageURL, id };
           }
         );
-
         if (
           imageData.hits.length / 12 < 1 &&
           imageData.totalHits !== page * 12
         ) {
           setEnd(false);
-
           alert('The last page will be loaded!');
         }
         setImages(prevItems => [...prevItems, ...imagesOnly]);
       } catch (error) {
         setEnd(true);
-
         console.error('Error fetching images:', error);
       } finally {
         setLoading(false);
       }
     }
-
     updateDate();
   }, [query, page]);
 
